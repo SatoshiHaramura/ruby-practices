@@ -20,16 +20,15 @@ class Calendar
   def display
     first_day = Date.new(@year, @month, FIRST_DAY)
     last_day = Date.new(@year, @month, -1).day
-    days = []
-    days = (FIRST_DAY..last_day).to_a
+    dates = (Date.new(@year, @month, FIRST_DAY)..Date.new(@year, @month, -1))
     puts "      #{@month}月 #{@year}"
     puts "日 月 火 水 木 金 土"
     printf "   " * first_day.wday
-    days.each do |day|
-      if (first_day + day - FIRST_DAY).saturday?
-        print day.to_s.rjust(2) + "\n"
+    dates.each do |date|
+      if date.saturday?
+        print date.day.to_s.rjust(2) + "\n"
       else
-        print day.to_s.rjust(2) + " "
+        print date.day.to_s.rjust(2) + " "
       end
     end
     puts "\n\n"
