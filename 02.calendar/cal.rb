@@ -6,15 +6,12 @@ class Calendar
   FIRST_DAY = 1
 
   def initialize(params)
-    @year = params["y"]
-    @month = params["m"]
-    today = Date.today
+    @year = params["y"]&.to_i
+    @month = params["m"]&.to_i
 
+    today = Date.today
     @year ||= today.year
     @month ||= today.month
-
-    @year = @year.to_i if @year.class != "Integer"
-    @month = @month.to_i if @month.class != "Integer"
   end
 
   def display
