@@ -20,7 +20,7 @@ end
 
 def retrieve_files(options)
   if options['a']
-    Dir.entries('.').sort
+    Dir.glob('*', File::FNM_DOTMATCH)
   else
     Dir.glob('*')
   end
