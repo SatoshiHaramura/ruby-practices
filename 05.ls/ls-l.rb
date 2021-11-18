@@ -110,7 +110,7 @@ end
 
 def display_files_info(files, length, block_size)
   puts "total #{block_size}"
-  Dir.glob('*') do |name|
+  files.each_key do |name|
     print files[name][:type]
     print "#{files[name][:permission]} "
     print "#{files[name][:link].rjust(length[:link] + 1)} "
