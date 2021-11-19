@@ -110,17 +110,17 @@ end
 
 def display_files_info(files, length, block_size)
   puts "total #{block_size}"
-  files.each_key do |name|
-    print files[name][:type]
-    print "#{files[name][:permission]} "
-    print "#{files[name][:link].rjust(length[:link] + 1)} "
-    print "#{files[name][:owner].ljust(length[:owner])}  "
-    print "#{files[name][:group].ljust(length[:group])} "
-    print "#{files[name][:size].rjust(length[:size] + 1)} "
-    print "#{files[name][:month].rjust(2)} "
-    print "#{files[name][:day].rjust(2)} "
-    print "#{files[name][:time]} "
-    print files[name][:type] == 'l' ? export_symlink_name(name) : name
+  files.each_value do |file|
+    print file[:type]
+    print "#{file[:permission]} "
+    print "#{file[:link].rjust(length[:link] + 1)} "
+    print "#{file[:owner].ljust(length[:owner])}  "
+    print "#{file[:group].ljust(length[:group])} "
+    print "#{file[:size].rjust(length[:size] + 1)} "
+    print "#{file[:month].rjust(2)} "
+    print "#{file[:day].rjust(2)} "
+    print "#{file[:time]} "
+    print file[:type] == 'l' ? export_symlink_name(files.key(file)) : files.key(file)
     puts ''
   end
 end
