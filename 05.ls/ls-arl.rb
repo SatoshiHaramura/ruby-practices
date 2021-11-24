@@ -13,8 +13,8 @@ def main
   filename_length = check_filename_length(files_name)
   max_filename_length = calculate_max_filename_length(filename_length)
   if options['l']
-    files_info, length, block_size = retrieve_files_info(files_name)
-    display_files_info(files_info, length, block_size)
+    files_info = retrieve_files_info(files_name)
+    display_files_info(files_info)
   else
     number_of_columns = calculate_columns(max_filename_length)
     number_of_rows = calculate_rows(files_name, number_of_columns)
@@ -27,23 +27,14 @@ def retrieve_options
 end
 
 def retrieve_files(options)
-  if options['a'] && options['r']
-    Dir.glob('*', File::FNM_DOTMATCH).reverse
-  elsif options['a']
-    Dir.glob('*', File::FNM_DOTMATCH)
-  elsif options['r']
-    Dir.glob('*').reverse
-  else
-    Dir.glob('*')
-  end
+  flags = options['a'] ? File::FNM_DOTMATCH : 0
+  files_name = Dir.glob('*', flags)
+  files_name = files_name.reverse if options['r']
+  files_name
 end
 
 def check_filename_length(files_name)
-  name_length = 0
-  files_name.each do |name|
-    name_length = name.length if name_length < name.length
-  end
-  name_length
+  files_name.map(&:length).max
 end
 
 def calculate_max_filename_length(filename_length)
@@ -51,24 +42,24 @@ def calculate_max_filename_length(filename_length)
 end
 
 def retrieve_files_info(files_name)
-  files = Hash.new { |h, k| h[k] = {} }
-  length = { link: 0, owner: 0, group: 0, size: 0 }
-  block_size = 0
+  files_info = []
   files_name.each do |name|
+    file = {}
     file_stat = File.lstat(name)
-    block_size += file_stat.blocks
-    files[name][:type] = check_type(name)
-    files[name][:permission] = check_permission(file_stat)
-    files[name][:link] = file_stat.nlink.to_s
-    files[name][:owner] = Etc.getpwuid(file_stat.uid).name
-    files[name][:group] = Etc.getgrgid(file_stat.gid).name
-    files[name][:size] = file_stat.size.to_s
-    files[name][:month] = file_stat.mtime.month.to_s
-    files[name][:day] = file_stat.mtime.day.to_s
-    files[name][:time] = file_stat.mtime.strftime('%H:%M').to_s
-    length = check_length(files, name, length)
+    file[:name] = name
+    file[:type] = check_type(name)
+    file[:permission] = check_permission(file_stat)
+    file[:link] = file_stat.nlink.to_s
+    file[:owner] = Etc.getpwuid(file_stat.uid).name
+    file[:group] = Etc.getgrgid(file_stat.gid).name
+    file[:size] = file_stat.size.to_s
+    file[:month] = file_stat.mtime.month.to_s
+    file[:day] = file_stat.mtime.day.to_s
+    file[:time] = file_stat.mtime.strftime('%H:%M').to_s
+    file[:blocks] = file_stat.blocks
+    files_info << file
   end
-  [files, length, block_size]
+  files_info
 end
 
 def check_type(file)
@@ -120,27 +111,25 @@ def check_sticky(permission)
   permission
 end
 
-def check_length(files, name, length)
-  length[:link] = files[name][:link].length if length[:link] < files[name][:link].length
-  length[:owner] = files[name][:owner].length if length[:owner] < files[name][:owner].length
-  length[:group] = files[name][:group].length if length[:group] < files[name][:group].length
-  length[:size] = files[name][:size].length if length[:size] < files[name][:size].length
-  length
-end
+def display_files_info(files)
+  max_link_length = files.map { |f| f[:link].length }.max
+  max_owner_length = files.map { |f| f[:owner].length }.max
+  max_group_length = files.map { |f| f[:group].length }.max
+  max_size_length = files.map { |f| f[:size].length }.max
+  block_size = files.map { |f| f[:blocks] }.sum
 
-def display_files_info(files, length, block_size)
   puts "total #{block_size}"
-  files.each_value do |file|
+  files.each do |file|
     print file[:type]
     print "#{file[:permission]} "
-    print "#{file[:link].rjust(length[:link] + 1)} "
-    print "#{file[:owner].ljust(length[:owner])}  "
-    print "#{file[:group].ljust(length[:group])} "
-    print "#{file[:size].rjust(length[:size] + 1)} "
+    print "#{file[:link].rjust(max_link_length + 1)} "
+    print "#{file[:owner].ljust(max_owner_length)}  "
+    print "#{file[:group].ljust(max_group_length)} "
+    print "#{file[:size].rjust(max_size_length + 1)} "
     print "#{file[:month].rjust(2)} "
     print "#{file[:day].rjust(2)} "
     print "#{file[:time]} "
-    print file[:type] == 'l' ? export_symlink_name(files.key(file)) : files.key(file)
+    print file[:type] == 'l' ? export_symlink_name(file[:name]) : file[:name]
     puts ''
   end
 end
