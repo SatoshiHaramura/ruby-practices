@@ -42,8 +42,7 @@ def calculate_max_filename_length(filename_length)
 end
 
 def retrieve_files_info(files_name)
-  files_info = []
-  files_name.each do |name|
+  files_name.map do |name|
     file = {}
     file_stat = File.lstat(name)
     file[:name] = name
@@ -57,9 +56,8 @@ def retrieve_files_info(files_name)
     file[:day] = file_stat.mtime.day.to_s
     file[:time] = file_stat.mtime.strftime('%H:%M').to_s
     file[:blocks] = file_stat.blocks
-    files_info << file
+    file
   end
-  files_info
 end
 
 def check_type(file)
