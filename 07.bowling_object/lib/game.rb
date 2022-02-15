@@ -2,28 +2,26 @@
 # frozen_string_literal: true
 
 class Game
-  attr_reader :frames, :score
-  private :frames, :score
+  private attr_reader :frames, :score
 
-  def initialize(marks)
-    separated_marks = Game.separate(marks)
-    @frames = separated_marks.map { |mark| Frame.new(mark) }
+  def initialize(args)
+    @frames = create_frames(args)
     @score = 0
   end
 
-  def self.separate(args)
+  def create_frames(args)
     marks = args.split(',')
-    marks_array = []
-    marks_arrays = []
+    marks_tmp = []
+    frames = []
 
     marks.each do |mark|
-      marks_array << mark
-      if (marks_arrays.count < 9) && ((marks_array.count == 2) || (marks_array[0] == 'X'))
-        marks_arrays << marks_array
-        marks_array = []
+      marks_tmp << mark
+      if (frames.count < 9) && ((marks_tmp.count == 2) || (marks_tmp[0] == 'X'))
+        frames << Frame.new(marks_tmp)
+        marks_tmp = []
       end
     end
-    marks_arrays << marks_array
+    frames << Frame.new(marks_tmp)
   end
 
   def total_score

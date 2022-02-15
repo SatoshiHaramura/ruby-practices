@@ -5,8 +5,4 @@ require_relative '../lib/game'
 require_relative '../lib/frame'
 require_relative '../lib/shot'
 
-def main
-  puts Game.new(ARGV[0]).total_score
-end
-
-main
+puts Game.new(ARGV[0]).total_score

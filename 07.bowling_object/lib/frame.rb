@@ -2,8 +2,8 @@
 # frozen_string_literal: true
 
 class Frame
-  attr_reader :first_shot, :second_shot, :third_shot, :shot_count
-  private :shot_count
+  attr_reader :first_shot, :second_shot, :third_shot
+  private attr_reader :shot_count
 
   def initialize(shots)
     @first_shot = Shot.new(shots[0])
