@@ -5,9 +5,25 @@ class Game
   attr_reader :frames, :score
   private :frames, :score
 
-  def initialize(frames)
-    @frames = frames.map { |frame| Frame.new(frame) }
+  def initialize(marks)
+    separated_marks = Game.separate(marks)
+    @frames = separated_marks.map { |mark| Frame.new(mark) }
     @score = 0
+  end
+
+  def self.separate(args)
+    marks = args.split(',')
+    marks_array = []
+    marks_arrays = []
+
+    marks.each do |mark|
+      marks_array << mark
+      if (marks_arrays.count < 9) && ((marks_array.count == 2) || (marks_array[0] == 'X'))
+        marks_arrays << marks_array
+        marks_array = []
+      end
+    end
+    marks_arrays << marks_array
   end
 
   def total_score
