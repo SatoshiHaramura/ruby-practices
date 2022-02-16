@@ -2,7 +2,7 @@
 # frozen_string_literal: true
 
 class Game
-  private attr_reader :frames, :score
+  private attr_reader :frames, :score # rubocop:disable Style/AccessModifierDeclarations
 
   def initialize(args)
     @frames = create_frames(args)

@@ -2,7 +2,7 @@
 # frozen_string_literal: true
 
 class Shot
-  private attr_reader :mark
+  private attr_reader :mark # rubocop:disable Style/AccessModifierDeclarations
 
   def initialize(mark)
     @mark = mark

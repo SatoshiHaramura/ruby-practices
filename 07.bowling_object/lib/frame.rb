@@ -3,7 +3,7 @@
 
 class Frame
   attr_reader :first_shot, :second_shot, :third_shot
-  private attr_reader :shot_count
+  private attr_reader :shot_count # rubocop:disable Style/AccessModifierDeclarations
 
   def initialize(shots)
     @first_shot = Shot.new(shots[0])
