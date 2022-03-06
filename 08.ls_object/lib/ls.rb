@@ -6,14 +6,14 @@ FILENAME_LENGTH_UNIT = 8
 module Command
   class Ls
     attr_reader :files
-    private attr_reader :options, :files_name, :max_filename_length, :columns, :rows # rubocop:disable Style/AccessModifierDeclarations
+    private attr_reader :options, :files_name, :filename_width, :columns, :rows # rubocop:disable Style/AccessModifierDeclarations
 
     def initialize(options, terminal)
       @options = options
       @files_name = options['a'] ? Dir.glob('*', File::FNM_DOTMATCH) : Dir.glob('*')
       @files_name = files_name.reverse if options['r']
 
-      @max_filename_length = calculate_max_filename_length
+      @filename_width = calculate_filename_width
       @columns = calculate_columns_of_short_format(terminal)
       @rows = calculate_rows_of_short_format
     end
@@ -26,15 +26,15 @@ module Command
 
     private
 
-    def calculate_max_filename_length
+    def calculate_filename_width
       FILENAME_LENGTH_UNIT * ((files_name.map(&:length).max / FILENAME_LENGTH_UNIT) + 1)
     end
 
     def calculate_columns_of_short_format(terminal)
-      return MAX_COLUMNS if max_filename_length * MAX_COLUMNS < terminal.width
+      return MAX_COLUMNS if filename_width * MAX_COLUMNS < terminal.width
 
       1.upto(MAX_COLUMNS) do |column|
-        break column if terminal.width < max_filename_length * (column + 1)
+        break column if terminal.width < filename_width * (column + 1)
       end
     end
 
@@ -49,7 +49,7 @@ module Command
           index = rows * c + r
           next unless files[index]
 
-          str << files[index].name.ljust(max_filename_length)
+          str << files[index].name.ljust(filename_width)
         end
         str[-1] = str[-1].rstrip
         str << "\n"
