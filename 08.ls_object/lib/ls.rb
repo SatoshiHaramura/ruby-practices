@@ -10,7 +10,8 @@ module Command
 
     def initialize(options, terminal)
       @options = options
-      @files_name = options['a'] ? Dir.glob('*', File::FNM_DOTMATCH) : Dir.glob('*')
+      dot_match = options['a'] ? File::FNM_DOTMATCH : 0
+      @files_name = Dir.glob('*', dot_match)
       @files_name = files_name.reverse if options['r']
 
       @filename_width = calculate_filename_width
