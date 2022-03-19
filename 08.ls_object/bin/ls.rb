@@ -2,16 +2,13 @@
 # frozen_string_literal: true
 
 require 'optparse'
-require_relative '../lib/terminal'
-require_relative '../lib/shell'
-require_relative '../lib/kernel'
+require 'io/console'
 require_relative '../lib/ls'
 require_relative '../lib/file'
 
 def main
-  terminal = Terminal.new
-  terminal.accept_command(ARGV.getopts('arl'))
-  print terminal.deliver
+  ls = Command::Ls.new(ARGV.getopts('arl'), IO.console.winsize[1])
+  ls.execute.inject { |res, str| res + str }
 end
 
 main

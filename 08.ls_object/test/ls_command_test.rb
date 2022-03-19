@@ -1,9 +1,6 @@
 # frozen_string_literal: true
 
 require 'minitest/autorun'
-require_relative '../lib/terminal'
-require_relative '../lib/shell'
-require_relative '../lib/kernel'
 require_relative '../lib/ls'
 require_relative '../lib/file'
 
@@ -17,10 +14,9 @@ class LSCommandTest < Minitest::Test
       ls.rb           sample4
     TEXT
 
-    terminal = Terminal.new(48)
-    terminal.accept_command({ 'a' => false, 'r' => false, 'l' => false })
+    ls = Command::Ls.new({ 'a' => false, 'r' => false, 'l' => false }, 48)
 
-    assert_equal expected, terminal.deliver
+    assert_equal expected, ls.execute.inject { |res, str| res + str }
   end
 
   def test_exec_ls_with_forty_seven
@@ -34,10 +30,9 @@ class LSCommandTest < Minitest::Test
       sample1
     TEXT
 
-    terminal = Terminal.new(47)
-    terminal.accept_command({ 'a' => false, 'r' => false, 'l' => false })
+    ls = Command::Ls.new({ 'a' => false, 'r' => false, 'l' => false }, 47)
 
-    assert_equal expected, terminal.deliver
+    assert_equal expected, ls.execute.inject { |res, str| res + str }
   end
 
   def test_exec_ls_with_a_option
@@ -49,10 +44,9 @@ class LSCommandTest < Minitest::Test
       link2           sample2         test
     TEXT
 
-    terminal = Terminal.new(48)
-    terminal.accept_command({ 'a' => true, 'r' => false, 'l' => false })
+    ls = Command::Ls.new({ 'a' => true, 'r' => false, 'l' => false }, 48)
 
-    assert_equal expected, terminal.deliver
+    assert_equal expected, ls.execute.inject { |res, str| res + str }
   end
 
   def test_exec_ls_with_r_option
@@ -64,10 +58,9 @@ class LSCommandTest < Minitest::Test
       sample3         link3
     TEXT
 
-    terminal = Terminal.new(48)
-    terminal.accept_command({ 'a' => false, 'r' => true, 'l' => false })
+    ls = Command::Ls.new({ 'a' => false, 'r' => true, 'l' => false }, 48)
 
-    assert_equal expected, terminal.deliver
+    assert_equal expected, ls.execute.inject { |res, str| res + str }
   end
 
   def test_exec_ls_with_l_option
@@ -88,9 +81,8 @@ class LSCommandTest < Minitest::Test
       drwxr-xr-T  3 haramura  staff    96 11 15 18:58 test
     TEXT
 
-    terminal = Terminal.new(48)
-    terminal.accept_command({ 'a' => false, 'r' => false, 'l' => true })
+    ls = Command::Ls.new({ 'a' => false, 'r' => false, 'l' => true }, 48)
 
-    assert_equal expected, terminal.deliver
+    assert_equal expected, ls.execute.inject { |res, str| res + str }
   end
 end

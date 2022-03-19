@@ -8,14 +8,14 @@ module Command
     attr_reader :files
     private attr_reader :options, :files_name, :filename_width, :columns, :rows # rubocop:disable Style/AccessModifierDeclarations
 
-    def initialize(options, terminal)
+    def initialize(options, terminal_width)
       @options = options
       dot_match = options['a'] ? File::FNM_DOTMATCH : 0
       @files_name = Dir.glob('*', dot_match)
       @files_name = files_name.reverse if options['r']
 
       @filename_width = calculate_filename_width
-      @columns = calculate_columns_of_short_format(terminal)
+      @columns = calculate_columns_of_short_format(terminal_width)
       @rows = calculate_rows_of_short_format
     end
 
@@ -31,11 +31,11 @@ module Command
       FILENAME_LENGTH_UNIT * ((files_name.map(&:length).max / FILENAME_LENGTH_UNIT) + 1)
     end
 
-    def calculate_columns_of_short_format(terminal)
-      return MAX_COLUMNS if filename_width * MAX_COLUMNS < terminal.width
+    def calculate_columns_of_short_format(terminal_width)
+      return MAX_COLUMNS if filename_width * MAX_COLUMNS < terminal_width
 
       1.upto(MAX_COLUMNS) do |column|
-        break column if terminal.width < filename_width * (column + 1)
+        break column if terminal_width < filename_width * (column + 1)
       end
     end
 
