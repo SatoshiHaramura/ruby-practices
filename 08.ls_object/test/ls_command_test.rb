@@ -2,6 +2,8 @@
 
 require 'minitest/autorun'
 require_relative '../lib/ls'
+require_relative '../lib/short_format'
+require_relative '../lib/long_format'
 require_relative '../lib/file'
 
 class LSCommandTest < Minitest::Test
@@ -16,7 +18,7 @@ class LSCommandTest < Minitest::Test
 
     ls = Command::Ls.new({ 'a' => false, 'r' => false, 'l' => false }, 48)
 
-    assert_equal expected, ls.execute.inject { |res, str| res + str }
+    assert_equal expected, (ls.execute.inject { |res, str| res + str })
   end
 
   def test_exec_ls_with_forty_seven
@@ -32,7 +34,7 @@ class LSCommandTest < Minitest::Test
 
     ls = Command::Ls.new({ 'a' => false, 'r' => false, 'l' => false }, 47)
 
-    assert_equal expected, ls.execute.inject { |res, str| res + str }
+    assert_equal expected, (ls.execute.inject { |res, str| res + str })
   end
 
   def test_exec_ls_with_a_option
@@ -46,7 +48,7 @@ class LSCommandTest < Minitest::Test
 
     ls = Command::Ls.new({ 'a' => true, 'r' => false, 'l' => false }, 48)
 
-    assert_equal expected, ls.execute.inject { |res, str| res + str }
+    assert_equal expected, (ls.execute.inject { |res, str| res + str })
   end
 
   def test_exec_ls_with_r_option
@@ -60,7 +62,7 @@ class LSCommandTest < Minitest::Test
 
     ls = Command::Ls.new({ 'a' => false, 'r' => true, 'l' => false }, 48)
 
-    assert_equal expected, ls.execute.inject { |res, str| res + str }
+    assert_equal expected, (ls.execute.inject { |res, str| res + str })
   end
 
   def test_exec_ls_with_l_option
@@ -83,6 +85,6 @@ class LSCommandTest < Minitest::Test
 
     ls = Command::Ls.new({ 'a' => false, 'r' => false, 'l' => true }, 48)
 
-    assert_equal expected, ls.execute.inject { |res, str| res + str }
+    assert_equal expected, (ls.execute.inject { |res, str| res + str })
   end
 end

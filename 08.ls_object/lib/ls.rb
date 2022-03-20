@@ -1,96 +1,27 @@
 # frozen_string_literal: true
 
-MAX_COLUMNS = 3
-FILENAME_LENGTH_UNIT = 8
-
 module Command
   class Ls
-    attr_reader :files
-    private attr_reader :options, :files_name, :filename_width, :columns, :rows # rubocop:disable Style/AccessModifierDeclarations
+    private attr_reader :options, :files_name, :short_format # rubocop:disable Style/AccessModifierDeclarations
 
     def initialize(options, terminal_width)
       @options = options
+
       dot_match = options['a'] ? File::FNM_DOTMATCH : 0
       @files_name = Dir.glob('*', dot_match)
+
       @files_name = files_name.reverse if options['r']
 
-      @filename_width = calculate_filename_width
-      @columns = calculate_columns_of_short_format(terminal_width)
-      @rows = calculate_rows_of_short_format
+      @short_format = ShortFormat.new(files_name, terminal_width)
     end
 
     def execute
-      @files = files_name.map { |filename| Storage::File.new(filename) }
-      @files.each(&:build_detail_info) if options['l']
-      options['l'] ? render_long_format(calculate_total_block_size, build_max_length_map) : render_short_format
-    end
+      files = files_name.map { |filename| Storage::File.new(filename) }
 
-    private
+      files.each(&:build_detail_info) if options['l']
+      format = options['l'] ? LongFormat.new(files) : short_format
 
-    def calculate_filename_width
-      FILENAME_LENGTH_UNIT * ((files_name.map(&:length).max / FILENAME_LENGTH_UNIT) + 1)
-    end
-
-    def calculate_columns_of_short_format(terminal_width)
-      return MAX_COLUMNS if filename_width * MAX_COLUMNS < terminal_width
-
-      1.upto(MAX_COLUMNS) do |column|
-        break column if terminal_width < filename_width * (column + 1)
-      end
-    end
-
-    def calculate_rows_of_short_format
-      (files_name.count.to_f / columns).ceil(0)
-    end
-
-    def render_short_format
-      str = []
-      rows.times do |r|
-        columns.times do |c|
-          index = rows * c + r
-          next unless files[index]
-
-          str << files[index].name.ljust(filename_width)
-        end
-        str[-1] = str[-1].rstrip
-        str << "\n"
-      end
-      str
-    end
-
-    def calculate_total_block_size
-      files.map { |file| file.detail_info[:blocks] }.sum
-    end
-
-    def build_max_length_map
-      {
-        link: files.map { |file| file.detail_info[:link].length }.max,
-        owner: files.map { |file| file.detail_info[:owner].length }.max,
-        group: files.map { |file| file.detail_info[:group].length }.max,
-        size: files.map { |file| file.detail_info[:size].length }.max
-      }
-    end
-
-    def render_long_format(total_block_size, max_length_map)
-      files.each_with_object(["total #{total_block_size}\n"]) do |file, str|
-        str << [
-          file.detail_info[:type],
-          "#{file.detail_info[:permission]} ",
-          "#{file.detail_info[:link].rjust(max_length_map[:link] + 1)} ",
-          "#{file.detail_info[:owner].ljust(max_length_map[:owner])}  ",
-          "#{file.detail_info[:group].ljust(max_length_map[:group])} ",
-          "#{file.detail_info[:size].rjust(max_length_map[:size] + 1)} ",
-          "#{file.detail_info[:month].rjust(2)} ",
-          "#{file.detail_info[:day].rjust(2)} ",
-          "#{file.detail_info[:time]} ",
-          (file.detail_info[:type] == 'l' ? export_symlink_name(file.name) : file.name),
-          "\n"
-        ].join
-      end
-    end
-
-    def export_symlink_name(name)
-      "#{name} -> #{File.readlink(name)}"
+      format.render(files)
     end
   end
 end
