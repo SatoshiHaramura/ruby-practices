@@ -4,6 +4,7 @@ class LongFormat
   private attr_reader :total_block_size, :max_length_map # rubocop:disable Style/AccessModifierDeclarations
 
   def initialize(files)
+    files.each(&:build_detail_info)
     @total_block_size = calculate_total_block_size(files)
     @max_length_map = build_max_length_map(files)
   end
